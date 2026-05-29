@@ -5,10 +5,18 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 class UserBase(BaseModel):
     email: EmailStr
+    first_name: str = Field(min_length=1, max_length=100)
+    last_name: str = Field(min_length=1, max_length=100)
+    phone: str = Field(min_length=10, max_length=20)
+    address: str = Field(min_length=5, max_length=500)
 
 
-class UserCreate(UserBase):
+class UserRegister(UserBase):
     password: str = Field(min_length=8, max_length=128)
+
+
+class UserCreate(UserRegister):
+    pass
 
 
 class UserRead(UserBase):
