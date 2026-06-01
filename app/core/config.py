@@ -19,6 +19,13 @@ class Settings(BaseSettings):
     backend_cors_origins: list[str] = ["http://localhost:5173"]
     log_level: str = "INFO"
 
+    admin_email: str = "admin@vikastraders.com"
+    admin_password: str = "VikasAdmin@2026"
+    admin_first_name: str = "Vikas"
+    admin_last_name: str = "Admin"
+    admin_phone: str = "9999999999"
+    admin_address: str = "Vikas Traders HQ, Ludhiana, Punjab"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_prefix="APP_",
