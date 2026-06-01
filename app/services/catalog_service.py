@@ -62,6 +62,8 @@ class CatalogService:
         *,
         category_slug: str | None = None,
         best_sellers: bool = False,
+        search: str | None = None,
+        newest: bool = False,
         admin: bool = False,
     ) -> list[ProductRead]:
         if admin:
@@ -70,6 +72,8 @@ class CatalogService:
             products = self.product_repo.list_active(
                 category_slug=category_slug,
                 best_sellers=best_sellers,
+                search=search,
+                newest=newest,
             )
         return [product_to_read(p) for p in products]
 

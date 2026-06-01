@@ -1,7 +1,7 @@
 from fastapi import status
 
 from app.core.exceptions import AppException
-from app.core.security import create_access_token, verify_password
+from app.core.security import create_access_token, get_password_hash, verify_password
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth import AuthResponse
@@ -29,6 +29,17 @@ class AuthService:
                 error_code="account_inactive",
             )
         return self._build_auth_response(user)
+
+    def reset_password(self, email: str, new_password: str) -> None:
+        user = self.user_repository.get_by_email(email)
+        if not user:
+            raise AppException(
+                "No account found with this email.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        user.hashed_password = get_password_hash(new_password)
+        self.user_repository.db.add(user)
+        self.user_repository.db.commit()
 
     def _build_auth_response(self, user: User) -> AuthResponse:
         from app.schemas.user import UserRead

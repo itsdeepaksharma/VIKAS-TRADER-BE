@@ -30,3 +30,19 @@ class UserRead(UserBase):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+
+class UserUpdate(BaseModel):
+    first_name: str | None = Field(default=None, min_length=1, max_length=100)
+    last_name: str | None = Field(default=None, min_length=1, max_length=100)
+    phone: str | None = Field(default=None, min_length=10, max_length=20)
+    address: str | None = Field(default=None, min_length=5, max_length=500)
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    new_password: str = Field(min_length=8, max_length=128)
