@@ -22,17 +22,30 @@ class ProductRepository(BaseRepository[Product]):
             stmt = stmt.where(Product.is_active.is_(True))
         return self.db.scalar(stmt)
 
-    def list_active(self, *, category_slug: str | None = None, best_sellers: bool = False) -> list[Product]:
+    def list_active(
+        self,
+        *,
+        category_slug: str | None = None,
+        best_sellers: bool = False,
+        search: str | None = None,
+        newest: bool = False,
+    ) -> list[Product]:
         stmt = (
             select(Product)
             .options(joinedload(Product.category))
             .where(Product.is_active.is_(True))
-            .order_by(Product.name)
         )
         if category_slug:
             stmt = stmt.join(Category).where(Category.slug == category_slug)
         if best_sellers:
             stmt = stmt.where(Product.is_best_seller.is_(True))
+        if search:
+            term = f"%{search.strip().lower()}%"
+            stmt = stmt.where(Product.name.ilike(term))
+        if newest:
+            stmt = stmt.order_by(Product.created_at.desc())
+        else:
+            stmt = stmt.order_by(Product.name)
         return list(self.db.scalars(stmt).unique().all())
 
     def list_all(self) -> list[Product]:

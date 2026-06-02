@@ -4,7 +4,7 @@ from app.core.exceptions import AppException
 from app.core.security import get_password_hash
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
-from app.schemas.user import UserRegister
+from app.schemas.user import UserRegister, UserUpdate
 
 
 class UserService:
@@ -37,3 +37,25 @@ class UserService:
             address=user_in.address.strip(),
         )
         return self.repository.add(user)
+
+    def update_user(self, user: User, payload: UserUpdate) -> User:
+        if payload.first_name is not None:
+            user.first_name = payload.first_name.strip()
+        if payload.last_name is not None:
+            user.last_name = payload.last_name.strip()
+        if payload.phone is not None:
+            phone = payload.phone.strip()
+            existing = self.repository.get_by_phone(phone)
+            if existing and existing.id != user.id:
+                raise AppException(
+                    "A user with this phone number already exists.",
+                    status_code=status.HTTP_409_CONFLICT,
+                )
+            user.phone = phone
+        if payload.address is not None:
+            user.address = payload.address.strip()
+
+        self.repository.db.add(user)
+        self.repository.db.commit()
+        self.repository.db.refresh(user)
+        return user

@@ -1,31 +1,38 @@
+import uuid
+
 from fastapi.testclient import TestClient
 
 from app.main import app
 
 client = TestClient(app)
 
-REGISTER_PAYLOAD = {
+REGISTER_TEMPLATE = {
     "first_name": "Test",
     "last_name": "User",
-    "email": "test.user@example.com",
-    "phone": "9876543210",
     "address": "42 Test Street, Ludhiana, Punjab 141003",
     "password": "securepass123",
 }
 
 
 def test_register_and_login_flow() -> None:
-    register_response = client.post("/api/v1/auth/register", json=REGISTER_PAYLOAD)
+    suffix = uuid.uuid4().hex[:10]
+    register_payload = {
+        **REGISTER_TEMPLATE,
+        "email": f"test.user.{suffix}@example.com",
+        "phone": f"98{suffix[:8]}",
+    }
+
+    register_response = client.post("/api/v1/auth/register", json=register_payload)
     assert register_response.status_code == 201
     register_data = register_response.json()
     assert register_data["access_token"]
-    assert register_data["user"]["email"] == REGISTER_PAYLOAD["email"]
+    assert register_data["user"]["email"] == register_payload["email"]
 
     login_response = client.post(
         "/api/v1/auth/login",
         json={
-            "email": REGISTER_PAYLOAD["email"],
-            "password": REGISTER_PAYLOAD["password"],
+            "email": register_payload["email"],
+            "password": register_payload["password"],
         },
     )
     assert login_response.status_code == 200

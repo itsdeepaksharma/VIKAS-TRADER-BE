@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.api.deps import get_user_repository
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth import AuthResponse
-from app.schemas.user import UserLogin, UserRegister
+from app.schemas.user import ForgotPasswordRequest, ResetPasswordRequest, UserLogin, UserRegister
 from app.services.auth_service import AuthService
 
 router = APIRouter()
@@ -29,3 +29,24 @@ def login(
             detail="Incorrect email or password",
         )
     return auth
+
+
+@router.post("/forgot-password", status_code=204)
+def forgot_password(
+    payload: ForgotPasswordRequest,
+    repository: UserRepository = Depends(get_user_repository),
+) -> None:
+    user = repository.get_by_email(payload.email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No account found with this email.",
+        )
+
+
+@router.post("/reset-password", status_code=204)
+def reset_password(
+    payload: ResetPasswordRequest,
+    repository: UserRepository = Depends(get_user_repository),
+) -> None:
+    AuthService(repository).reset_password(payload.email, payload.new_password)

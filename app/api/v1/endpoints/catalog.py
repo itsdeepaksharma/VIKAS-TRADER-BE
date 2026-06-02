@@ -37,10 +37,17 @@ def get_category(
 def list_products(
     category_slug: str | None = Query(default=None),
     best_sellers: bool = Query(default=False),
+    q: str | None = Query(default=None),
+    newest: bool = Query(default=False),
     _: User = Depends(get_current_user),
     service: CatalogService = Depends(get_catalog_service),
 ) -> list[ProductRead]:
-    return service.list_products(category_slug=category_slug, best_sellers=best_sellers)
+    return service.list_products(
+        category_slug=category_slug,
+        best_sellers=best_sellers,
+        search=q,
+        newest=newest,
+    )
 
 
 @router.get("/products/{product_id}", response_model=ProductRead)
