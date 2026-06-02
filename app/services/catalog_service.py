@@ -17,6 +17,17 @@ from app.schemas.catalog import (
 )
 from app.services.catalog_mapper import category_to_read, product_to_read
 
+DEFAULT_CATEGORY_IMAGE = (
+    "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop"
+)
+
+
+def _slugify(name: str) -> str:
+    import re
+
+    slug = re.sub(r"[^a-z0-9]+", "-", name.strip().lower()).strip("-")
+    return slug[:120] if slug else "category"
+
 
 class CatalogService:
     def __init__(
@@ -84,13 +95,13 @@ class CatalogService:
         return product_to_read(product)
 
     def create_category(self, payload: CategoryCreate) -> CategoryRead:
-        slug = payload.slug.strip().lower()
+        slug = (payload.slug or _slugify(payload.name)).strip().lower()
         if self.category_repo.slug_exists(slug):
             raise AppException("Category slug already exists.", status_code=status.HTTP_409_CONFLICT)
         category = Category(
             slug=slug,
             name=payload.name.strip(),
-            image=payload.image,
+            image=payload.image or DEFAULT_CATEGORY_IMAGE,
             bg_color=payload.bg_color,
             sort_order=payload.sort_order,
             is_active=payload.is_active,

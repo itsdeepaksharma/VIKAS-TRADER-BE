@@ -48,9 +48,9 @@ class ProductRead(BaseModel):
 
 
 class CategoryCreate(BaseModel):
-    slug: str = Field(min_length=2, max_length=120)
+    slug: str | None = Field(default=None, min_length=2, max_length=120)
     name: str = Field(min_length=2, max_length=200)
-    image: str = Field(min_length=5, max_length=500)
+    image: str | None = Field(default=None, max_length=1_000_000)
     bg_color: str = Field(default="bg-vt-light-blue", max_length=50)
     sort_order: int = 0
     is_active: bool = True
@@ -59,7 +59,7 @@ class CategoryCreate(BaseModel):
 class CategoryUpdate(BaseModel):
     slug: str | None = Field(default=None, min_length=2, max_length=120)
     name: str | None = Field(default=None, min_length=2, max_length=200)
-    image: str | None = Field(default=None, min_length=5, max_length=500)
+    image: str | None = Field(default=None, max_length=1_000_000)
     bg_color: str | None = Field(default=None, max_length=50)
     sort_order: int | None = None
     is_active: bool | None = None
@@ -73,7 +73,7 @@ class ProductCreate(BaseModel):
     original_price: Decimal | None = Field(default=None, gt=0)
     rating: Decimal = Field(default=Decimal("4.5"), ge=0, le=5)
     review_count: int = Field(default=0, ge=0)
-    image: str = Field(min_length=5, max_length=500)
+    image: str = Field(min_length=5, max_length=1_000_000)
     stock_quantity: int = Field(default=0, ge=0)
     features: list[str] = Field(default_factory=list)
     colors: list[ProductColorRead] = Field(default_factory=list)
@@ -90,7 +90,7 @@ class ProductUpdate(BaseModel):
     original_price: Decimal | None = None
     rating: Decimal | None = Field(default=None, ge=0, le=5)
     review_count: int | None = Field(default=None, ge=0)
-    image: str | None = Field(default=None, min_length=5, max_length=500)
+    image: str | None = Field(default=None, max_length=1_000_000)
     stock_quantity: int | None = Field(default=None, ge=0)
     features: list[str] | None = None
     colors: list[ProductColorRead] | None = None
