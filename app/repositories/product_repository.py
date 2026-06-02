@@ -68,6 +68,7 @@ class ProductRepository(BaseRepository[Product]):
         )
 
     def count_low_stock(self, threshold: int = 5) -> int:
+        """Active products with stock between 1 and threshold - 1 (excludes out of stock)."""
         from sqlalchemy import func
 
         return int(
@@ -76,7 +77,8 @@ class ProductRepository(BaseRepository[Product]):
                 .select_from(Product)
                 .where(
                     Product.is_active.is_(True),
-                    Product.stock_quantity <= threshold,
+                    Product.stock_quantity > 0,
+                    Product.stock_quantity < threshold,
                 )
             )
             or 0
