@@ -1,7 +1,7 @@
 from decimal import Decimal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field
+from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
 
 class ProductColorRead(BaseModel):
@@ -30,6 +30,7 @@ class ProductRead(BaseModel):
     rating: Decimal
     review_count: int
     image: str
+    images: list[str] = Field(default_factory=list)
     stock_quantity: int
     features: list[str]
     colors: list[ProductColorRead]
@@ -73,13 +74,27 @@ class ProductCreate(BaseModel):
     original_price: Decimal | None = Field(default=None, gt=0)
     rating: Decimal = Field(default=Decimal("4.5"), ge=0, le=5)
     review_count: int = Field(default=0, ge=0)
-    image: str = Field(min_length=5, max_length=1_000_000)
+    image: str | None = Field(default=None, max_length=1_000_000)
+    images: list[str] = Field(default_factory=list, max_length=10)
     stock_quantity: int = Field(default=0, ge=0)
     features: list[str] = Field(default_factory=list)
     colors: list[ProductColorRead] = Field(default_factory=list)
     sizes: list[str] = Field(default_factory=list)
     is_best_seller: bool = False
     is_active: bool = True
+
+    @model_validator(mode="after")
+    def validate_images(self) -> "ProductCreate":
+        cleaned = [url.strip() for url in self.images if url and url.strip()]
+        if cleaned:
+            self.images = cleaned
+            if not self.image:
+                self.image = cleaned[0]
+            return self
+        if self.image and len(self.image.strip()) >= 5:
+            self.images = [self.image.strip()]
+            return self
+        raise ValueError("At least one product image is required.")
 
 
 class ProductUpdate(BaseModel):
@@ -91,6 +106,7 @@ class ProductUpdate(BaseModel):
     rating: Decimal | None = Field(default=None, ge=0, le=5)
     review_count: int | None = Field(default=None, ge=0)
     image: str | None = Field(default=None, max_length=1_000_000)
+    images: list[str] | None = Field(default=None, max_length=10)
     stock_quantity: int | None = Field(default=None, ge=0)
     features: list[str] | None = None
     colors: list[ProductColorRead] | None = None
