@@ -22,5 +22,6 @@ ruff check app
 
 - `GET /api/v1/health` — liveness
 - `POST /api/v1/auth/register` + `POST /api/v1/auth/login` — happy path with unique email
+- Order totals — `total` equals line-item subtotal (no shipping fee applied server-side)
 
 Extend with catalog/order integration tests when CI adds a test database fixture.

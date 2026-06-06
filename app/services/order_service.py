@@ -63,7 +63,7 @@ class OrderService:
             status=OrderStatus.pending,
             payment_method="direct",
             subtotal=subtotal,
-            total=subtotal,
+            total=subtotal,  # No separate shipping charge; total matches cart subtotal
             shipping_address=user.address,
         )
         self.order_repo.db.add(order)
