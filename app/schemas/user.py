@@ -23,6 +23,7 @@ class UserRead(UserBase):
     id: UUID
     is_active: bool
     is_superuser: bool
+    avatar_url: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -37,6 +38,7 @@ class UserUpdate(BaseModel):
     last_name: str | None = Field(default=None, min_length=1, max_length=100)
     phone: str | None = Field(default=None, min_length=10, max_length=20)
     address: str | None = Field(default=None, min_length=5, max_length=500)
+    avatar_url: str | None = Field(default=None, max_length=1_000_000)
 
 
 class ForgotPasswordRequest(BaseModel):
