@@ -22,6 +22,22 @@ DEFAULT_CATEGORY_IMAGE = (
 )
 
 
+def _normalize_product_images(
+    image: str | None,
+    images: list[str] | None,
+) -> tuple[str, list[str]]:
+    cleaned = [url.strip() for url in (images or []) if url and url.strip()]
+    if cleaned:
+        return cleaned[0], cleaned
+    if image and image.strip():
+        trimmed = image.strip()
+        return trimmed, [trimmed]
+    raise AppException(
+        "At least one product image is required.",
+        status_code=status.HTTP_400_BAD_REQUEST,
+    )
+
+
 def _slugify(name: str) -> str:
     import re
 
@@ -154,6 +170,8 @@ class CatalogService:
         if not category:
             raise AppException("Category not found.", status_code=status.HTTP_404_NOT_FOUND)
 
+        primary_image, all_images = _normalize_product_images(payload.image, payload.images)
+
         product = Product(
             category_id=payload.category_id,
             name=payload.name.strip(),
@@ -162,7 +180,8 @@ class CatalogService:
             original_price=payload.original_price,
             rating=payload.rating,
             review_count=payload.review_count,
-            image=payload.image,
+            image=primary_image,
+            images=all_images,
             stock_quantity=payload.stock_quantity,
             features=payload.features,
             colors=[c.model_dump() for c in payload.colors],
@@ -196,8 +215,13 @@ class CatalogService:
             product.rating = payload.rating
         if payload.review_count is not None:
             product.review_count = payload.review_count
-        if payload.image is not None:
-            product.image = payload.image
+        if payload.images is not None or payload.image is not None:
+            primary_image, all_images = _normalize_product_images(
+                payload.image if payload.image is not None else product.image,
+                payload.images if payload.images is not None else list(product.images or []),
+            )
+            product.image = primary_image
+            product.images = all_images
         if payload.stock_quantity is not None:
             product.stock_quantity = payload.stock_quantity
         if payload.features is not None:

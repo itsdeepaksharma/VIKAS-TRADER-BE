@@ -25,6 +25,7 @@ class Product(TimestampMixin, Base):
     rating: Mapped[Decimal] = mapped_column(Numeric(3, 2), default=Decimal("4.5"), nullable=False)
     review_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     image: Mapped[str] = mapped_column(Text, nullable=False)
+    images: Mapped[list] = mapped_column(JSONB, default=list, nullable=False)
     stock_quantity: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     features: Mapped[list] = mapped_column(JSONB, default=list, nullable=False)
     colors: Mapped[list] = mapped_column(JSONB, default=list, nullable=False)

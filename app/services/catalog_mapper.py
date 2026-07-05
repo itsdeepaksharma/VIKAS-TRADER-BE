@@ -7,6 +7,9 @@ def product_to_read(product: Product) -> ProductRead:
         ProductColorRead.model_validate(c) if isinstance(c, dict) else c
         for c in (product.colors or [])
     ]
+    images = list(product.images or [])
+    if not images and product.image:
+        images = [product.image]
     return ProductRead(
         id=product.id,
         name=product.name,
@@ -16,6 +19,7 @@ def product_to_read(product: Product) -> ProductRead:
         rating=product.rating,
         review_count=product.review_count,
         image=product.image,
+        images=images,
         stock_quantity=product.stock_quantity,
         features=list(product.features or []),
         colors=colors,
