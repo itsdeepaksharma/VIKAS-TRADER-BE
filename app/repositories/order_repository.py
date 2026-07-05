@@ -53,6 +53,4 @@ class OrderRepository(BaseRepository[Order]):
         )
 
     def count_new(self) -> int:
-        return self.count_by_status(OrderStatus.pending) + self.count_by_status(
-            OrderStatus.processing
-        )
+        return self.count_by_status(OrderStatus.pending)

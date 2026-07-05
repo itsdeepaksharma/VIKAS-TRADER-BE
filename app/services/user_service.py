@@ -54,6 +54,9 @@ class UserService:
             user.phone = phone
         if payload.address is not None:
             user.address = payload.address.strip()
+        if payload.avatar_url is not None:
+            trimmed = payload.avatar_url.strip()
+            user.avatar_url = trimmed or None
 
         self.repository.db.add(user)
         self.repository.db.commit()
