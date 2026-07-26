@@ -10,6 +10,8 @@ from app.models.order import OrderStatus
 class OrderItemCreate(BaseModel):
     product_id: UUID
     quantity: int = Field(ge=1, le=99)
+    selected_color: str | None = Field(default=None, max_length=100)
+    selected_size: str | None = Field(default=None, max_length=100)
 
 
 class OrderCreate(BaseModel):
@@ -23,6 +25,8 @@ class OrderItemRead(BaseModel):
     product_image: str
     quantity: int
     unit_price: Decimal
+    selected_color: str | None = None
+    selected_size: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
