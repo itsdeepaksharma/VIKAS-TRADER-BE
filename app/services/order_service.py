@@ -56,7 +56,21 @@ class OrderService:
                 )
             line_total = product.price * item.quantity
             subtotal += line_total
-            line_items.append((product, item.quantity))
+            selected_color = (item.selected_color or "").strip() or None
+            selected_size = (item.selected_size or "").strip() or None
+            if selected_color:
+                color_match = next(
+                    (
+                        c
+                        for c in (product.colors or [])
+                        if isinstance(c, dict)
+                        and (c.get("id") == selected_color or c.get("name") == selected_color)
+                    ),
+                    None,
+                )
+                if color_match and color_match.get("name"):
+                    selected_color = str(color_match["name"])
+            line_items.append((product, item.quantity, selected_color, selected_size))
 
         order = Order(
             user_id=user.id,
@@ -69,7 +83,7 @@ class OrderService:
         self.order_repo.db.add(order)
         self.order_repo.db.flush()
 
-        for product, quantity in line_items:
+        for product, quantity, selected_color, selected_size in line_items:
             self.order_repo.db.add(
                 OrderItem(
                     order_id=order.id,
@@ -78,6 +92,8 @@ class OrderService:
                     product_image=product.image,
                     quantity=quantity,
                     unit_price=product.price,
+                    selected_color=selected_color,
+                    selected_size=selected_size,
                 )
             )
             product.stock_quantity -= quantity
